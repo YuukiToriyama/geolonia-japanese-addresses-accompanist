@@ -10,11 +10,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let prefecture_list = fetch_geolonia_api_master().await.unwrap();
     for prefecture in prefecture_list {
-        if fs::read_dir(format!("{}/{}", BASE_DIR, prefecture.name)).is_err() {
-            fs::create_dir(format!("{}/{}", BASE_DIR, prefecture.name)).unwrap();
+        let prefecture_dir = format!("{}/{}", BASE_DIR, prefecture.name);
+        if fs::read_dir(&prefecture_dir).is_err() {
+            fs::create_dir(&prefecture_dir).unwrap();
         }
-        let mut file =
-            fs::File::create(format!("{}/{}/master.json", BASE_DIR, prefecture.name)).unwrap();
+        let mut file = fs::File::create(format!("{}/master.json", prefecture_dir)).unwrap();
         file.write_all(
             serde_json::to_string_pretty(&prefecture)
                 .unwrap()
