@@ -17,7 +17,7 @@ jobs:
         run: cargo build --verbose
 
       - name: Generate JSON files
-        run: ./target/debug/japanese-address-accompanist
+        run: ./target/debug/japanese-addresses-accompanist
 
       - name: Deploy files to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
