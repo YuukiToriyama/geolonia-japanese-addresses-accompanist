@@ -1,9 +1,25 @@
-use std::{collections::HashMap, vec};
+use std::{collections::HashMap, fs, io::Write, vec};
+
+use serde::Serialize;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let json = fetch_geolonia_api_master().await.unwrap();
-    println!("{:#?}", json);
+    const BASE_DIR: &str = "./public";
+    if fs::read_dir(BASE_DIR).is_err() {
+        fs::create_dir(BASE_DIR).unwrap();
+    }
+    let prefecture_list = fetch_geolonia_api_master().await.unwrap();
+    for prefecture in prefecture_list {
+        fs::create_dir(format!("{}/{}", BASE_DIR, prefecture.name)).unwrap();
+        let mut file =
+            fs::File::create(format!("{}/{}/master.json", BASE_DIR, prefecture.name)).unwrap();
+        file.write_all(
+            serde_json::to_string_pretty(&prefecture)
+                .unwrap()
+                .as_bytes(),
+        )
+        .unwrap();
+    }
     Ok(())
 }
 
@@ -24,7 +40,7 @@ async fn fetch_geolonia_api_master() -> Result<Vec<Prefecture>, Box<dyn std::err
     Ok(prefecture_list)
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Debug)]
 struct Prefecture {
     name: String,
     cities: Vec<String>,
