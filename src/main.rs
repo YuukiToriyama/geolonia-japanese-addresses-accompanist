@@ -15,12 +15,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             fs::create_dir(&prefecture_dir).unwrap();
         }
         let mut file = fs::File::create(format!("{}/master.json", prefecture_dir)).unwrap();
-        file.write_all(
-            serde_json::to_string_pretty(&prefecture)
-                .unwrap()
-                .as_bytes(),
-        )
-        .unwrap();
+        file.write_all(serde_json::to_string(&prefecture).unwrap().as_bytes())?;
     }
     Ok(())
 }
