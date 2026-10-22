@@ -1,19 +1,20 @@
+use std::path::Path;
 use std::{collections::HashMap, fs, io::Write};
 use serde::Serialize;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    const BASE_DIR: &str = "./public";
-    if fs::read_dir(BASE_DIR).is_err() {
-        fs::create_dir(BASE_DIR)?;
+    let base_dir = Path::new("./public");
+    if fs::read_dir(base_dir).is_err() {
+        fs::create_dir(base_dir)?;
     }
     let prefecture_list = fetch_geolonia_api_master().await?;
     for prefecture in prefecture_list {
-        let prefecture_dir = format!("{}/{}", BASE_DIR, prefecture.name);
+        let prefecture_dir = base_dir.join(&prefecture.name);
         if fs::read_dir(&prefecture_dir).is_err() {
             fs::create_dir(&prefecture_dir)?;
         }
-        let mut file = fs::File::create(format!("{}/master.json", prefecture_dir))?;
+        let mut file = fs::File::create(prefecture_dir.join("master.json"))?;
         file.write_all(serde_json::to_string(&prefecture).unwrap().as_bytes())?;
     }
     Ok(())
