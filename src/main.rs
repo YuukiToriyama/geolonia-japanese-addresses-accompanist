@@ -1,5 +1,4 @@
-use std::{collections::HashMap, fs, io::Write, vec};
-
+use std::{collections::HashMap, fs, io::Write};
 use serde::Serialize;
 
 #[tokio::main]
@@ -22,16 +21,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn fetch_geolonia_api_master() -> Result<Vec<Prefecture>, Box<dyn std::error::Error>> {
     const GEOLONIA_API_MASTER: &str = "https://geolonia.github.io/japanese-addresses/api/ja.json";
-    let response = reqwest::get(GEOLONIA_API_MASTER).await?;
+    let response = reqwest::get(GEOLONIA_API_MASTER)
+        .await?
+        .error_for_status()?;
     let json = response.json::<HashMap<String, Vec<String>>>().await?;
-    let mut prefecture_list: Vec<Prefecture> = vec![];
-    for (prefecture_name, city_list) in json {
-        prefecture_list.push(Prefecture {
-            name: prefecture_name,
-            cities: city_list,
-        })
-    }
-    Ok(prefecture_list)
+    let prefectures = json
+        .into_iter()
+        .map(|(name, cities)| Prefecture { name, cities })
+        .collect();
+    Ok(prefectures)
 }
 
 #[derive(Serialize, Debug)]
