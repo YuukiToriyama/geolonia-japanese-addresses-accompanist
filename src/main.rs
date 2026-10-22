@@ -1,5 +1,5 @@
 use std::path::Path;
-use std::{collections::HashMap, fs, io::Write};
+use std::{collections::HashMap, fs};
 use serde::Serialize;
 
 #[tokio::main]
@@ -14,8 +14,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if fs::read_dir(&prefecture_dir).is_err() {
             fs::create_dir(&prefecture_dir)?;
         }
-        let mut file = fs::File::create(prefecture_dir.join("master.json"))?;
-        file.write_all(serde_json::to_string(&prefecture).unwrap().as_bytes())?;
+        let file = fs::File::create(prefecture_dir.join("master.json"))?;
+        serde_json::to_writer(&file, &prefecture)?;
     }
     Ok(())
 }
