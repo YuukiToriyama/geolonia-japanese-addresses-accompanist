@@ -20,7 +20,7 @@ jobs:
         run: cargo build --verbose
 
       - name: Generate JSON files
-        run: ./target/debug/geolonia-japanese-addresses-accompanist
+        run: cargo run --release
 
       - name: Deploy files to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
