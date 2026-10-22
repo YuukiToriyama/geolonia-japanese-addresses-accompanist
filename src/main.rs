@@ -8,8 +8,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if fs::read_dir(base_dir).is_err() {
         fs::create_dir(base_dir)?;
     }
-    let prefecture_list = fetch_geolonia_api_master().await?;
-    for prefecture in prefecture_list {
+    for prefecture in fetch_geolonia_api_master().await? {
         let prefecture_dir = base_dir.join(&prefecture.name);
         if fs::read_dir(&prefecture_dir).is_err() {
             fs::create_dir(&prefecture_dir)?;
