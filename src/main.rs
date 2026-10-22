@@ -1,6 +1,9 @@
-use std::path::Path;
-use std::{collections::HashMap, fs};
+mod model;
+
+use crate::model::ApiResponse;
 use serde::Serialize;
+use std::fs;
+use std::path::Path;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,14 +24,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn fetch_geolonia_api_master() -> Result<Vec<Prefecture>, Box<dyn std::error::Error>> {
-    const GEOLONIA_API_MASTER: &str = "https://geolonia.github.io/japanese-addresses/api/ja.json";
+    const GEOLONIA_API_MASTER: &str = "https://japanese-addresses-v2.geoloniamaps.com/api/ja.json";
     let response = reqwest::get(GEOLONIA_API_MASTER)
         .await?
         .error_for_status()?;
-    let json = response.json::<HashMap<String, Vec<String>>>().await?;
+    let json = response.json::<ApiResponse>().await?;
     let prefectures = json
+        .data
         .into_iter()
-        .map(|(name, cities)| Prefecture { name, cities })
+        .map(|prefecture| Prefecture {
+            name: prefecture.pref,
+            cities: prefecture
+                .cities
+                .into_iter()
+                .filter_map(|city| city.get_city_name())
+                .collect(),
+        })
         .collect();
     Ok(prefectures)
 }
