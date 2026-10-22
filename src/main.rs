@@ -13,8 +13,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if fs::read_dir(&prefecture_dir).is_err() {
             fs::create_dir(&prefecture_dir)?;
         }
-        let file = fs::File::create(prefecture_dir.join("master.json"))?;
+
+        let file_path = prefecture_dir.join("master.json");
+        let file = fs::File::create(&file_path)?;
         serde_json::to_writer(&file, &prefecture)?;
+
+        println!("Generated file: {}", file_path.display());
     }
     Ok(())
 }
