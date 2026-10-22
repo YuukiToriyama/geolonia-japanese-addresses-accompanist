@@ -6,15 +6,15 @@ use serde::Serialize;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     const BASE_DIR: &str = "./public";
     if fs::read_dir(BASE_DIR).is_err() {
-        fs::create_dir(BASE_DIR).unwrap();
+        fs::create_dir(BASE_DIR)?;
     }
     let prefecture_list = fetch_geolonia_api_master().await?;
     for prefecture in prefecture_list {
         let prefecture_dir = format!("{}/{}", BASE_DIR, prefecture.name);
         if fs::read_dir(&prefecture_dir).is_err() {
-            fs::create_dir(&prefecture_dir).unwrap();
+            fs::create_dir(&prefecture_dir)?;
         }
-        let mut file = fs::File::create(format!("{}/master.json", prefecture_dir)).unwrap();
+        let mut file = fs::File::create(format!("{}/master.json", prefecture_dir))?;
         file.write_all(serde_json::to_string(&prefecture).unwrap().as_bytes())?;
     }
     Ok(())
@@ -22,11 +22,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn fetch_geolonia_api_master() -> Result<Vec<Prefecture>, Box<dyn std::error::Error>> {
     const GEOLONIA_API_MASTER: &str = "https://geolonia.github.io/japanese-addresses/api/ja.json";
-    let response = reqwest::get(GEOLONIA_API_MASTER).await.unwrap();
-    let json = response
-        .json::<HashMap<String, Vec<String>>>()
-        .await
-        .unwrap();
+    let response = reqwest::get(GEOLONIA_API_MASTER).await?;
+    let json = response.json::<HashMap<String, Vec<String>>>().await?;
     let mut prefecture_list: Vec<Prefecture> = vec![];
     for (prefecture_name, city_list) in json {
         prefecture_list.push(Prefecture {
